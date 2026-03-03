@@ -11,59 +11,61 @@
   font-display: swap;
 }
 
-/* General Sans - Body font */
+/* Plus Jakarta Sans - Body font */
 @font-face {
-  font-family: "General Sans";
-  src: url("/assets/fonts/GeneralSans-Variable.woff2") format("woff2");
-  font-weight: 200 700;
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans-Variable.woff2") format("woff2");
+  font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
 
 @layer base {
   :root {
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* RK Appliances — Clean Slate palette */
-    /* Background: warm off-white */
-    --background: 0.98 0.005 85;
-    --foreground: 0.15 0.02 250;
+    /* RK Home Appliances — Clean White + Indigo Accent */
+    /* Page background: very soft warm white */
+    --background: 0.978 0.003 75;
+    --foreground: 0.13 0.025 265;
 
+    /* Cards: pure white with subtle warmth */
     --card: 1 0 0;
-    --card-foreground: 0.15 0.02 250;
+    --card-foreground: 0.13 0.025 265;
 
     --popover: 1 0 0;
-    --popover-foreground: 0.15 0.02 250;
+    --popover-foreground: 0.13 0.025 265;
 
-    /* Primary: deep navy */
-    --primary: 0.22 0.06 255;
-    --primary-foreground: 0.98 0 0;
+    /* Primary: rich indigo — vibrant, premium */
+    --primary: 0.40 0.18 278;
+    --primary-foreground: 1 0 0;
 
-    /* Secondary: soft slate */
-    --secondary: 0.93 0.01 250;
-    --secondary-foreground: 0.22 0.06 255;
+    /* Secondary: soft lavender-gray */
+    --secondary: 0.96 0.006 265;
+    --secondary-foreground: 0.32 0.06 265;
 
-    /* Muted */
-    --muted: 0.94 0.008 240;
-    --muted-foreground: 0.5 0.02 250;
+    /* Muted: airy gray */
+    --muted: 0.96 0.004 265;
+    --muted-foreground: 0.50 0.022 265;
 
-    /* Accent: amber/gold */
-    --accent: 0.75 0.15 65;
-    --accent-foreground: 0.15 0.02 250;
+    /* Accent: indigo (matches primary) */
+    --accent: 0.40 0.18 278;
+    --accent-foreground: 1 0 0;
 
     /* Destructive */
     --destructive: 0.55 0.22 25;
-    --destructive-foreground: 0.98 0 0;
+    --destructive-foreground: 1 0 0;
 
-    --border: 0.88 0.01 250;
-    --input: 0.88 0.01 250;
-    --ring: 0.22 0.06 255;
+    /* Borders: very light, slightly cool */
+    --border: 0.91 0.008 265;
+    --input: 0.91 0.008 265;
+    --ring: 0.40 0.18 278;
 
-    /* Brand amber for special elements */
-    --brand: 0.72 0.16 68;
-    --brand-foreground: 0.15 0.02 250;
+    /* Brand: matches primary indigo */
+    --brand: 0.40 0.18 278;
+    --brand-foreground: 1 0 0;
 
-    /* Chart */
+    /* Charts */
     --chart-1: 0.646 0.222 41.116;
     --chart-2: 0.6 0.118 184.704;
     --chart-3: 0.398 0.07 227.392;
@@ -91,7 +93,7 @@
     --popover: 0.2 0.03 258;
     --popover-foreground: 0.95 0.01 250;
 
-    --primary: 0.72 0.16 68;
+    --primary: 0.95 0.01 250;
     --primary-foreground: 0.12 0.025 258;
 
     --secondary: 0.22 0.04 258;
@@ -135,14 +137,15 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "General Sans", system-ui, sans-serif;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: "Cabinet Grotesk", system-ui, sans-serif;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 }
 
@@ -152,20 +155,29 @@
   }
 
   .font-body {
-    font-family: "General Sans", system-ui, sans-serif;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   }
 
-  /* Subtle texture overlay for depth */
-  .bg-noise {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  }
-
+  /* Hover lift for product cards */
   .product-card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, border-color 0.18s ease;
   }
 
   .product-card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px -8px oklch(var(--primary) / 0.15);
+    transform: translateY(-4px);
+    box-shadow:
+      0 12px 32px -4px oklch(0.40 0.18 278 / 0.12),
+      0 4px 12px -3px oklch(0.13 0.025 265 / 0.07);
+    border-color: oklch(0.40 0.18 278 / 0.25);
+  }
+
+  /* Scrollbar hide utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

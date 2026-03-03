@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { LogIn, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAllProducts,
   useCart,
@@ -16,13 +17,20 @@ import { getProductImage } from "../utils/productImages";
 interface CartDrawerProps {
   open: boolean;
   onClose: () => void;
+  onCheckout?: () => void;
 }
 
-export default function CartDrawer({ open, onClose }: CartDrawerProps) {
+export default function CartDrawer({
+  open,
+  onClose,
+  onCheckout,
+}: CartDrawerProps) {
   const { data: cartItems, isLoading: cartLoading } = useCart();
   const { data: products } = useAllProducts();
   const removeFromCart = useRemoveFromCart();
   const clearCart = useClearCart();
+  const { identity, login, isLoggingIn } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   // Build enriched cart items
   const enrichedCart = (cartItems ?? []).map((item) => {
@@ -223,13 +231,30 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                 {/* Actions */}
                 <div className="space-y-2">
-                  <Button
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                    size="lg"
-                    data-ocid="cart.checkout.primary_button"
-                  >
-                    Proceed to Checkout
-                  </Button>
+                  {isAuthenticated ? (
+                    <Button
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      size="lg"
+                      data-ocid="cart.checkout.primary_button"
+                      onClick={() => {
+                        onClose();
+                        onCheckout?.();
+                      }}
+                    >
+                      Proceed to Checkout
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                      size="lg"
+                      data-ocid="cart.login_to_checkout.button"
+                      onClick={login}
+                      disabled={isLoggingIn}
+                    >
+                      <LogIn className="w-4 h-4" />
+                      {isLoggingIn ? "Logging in..." : "Login to Checkout"}
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/5"

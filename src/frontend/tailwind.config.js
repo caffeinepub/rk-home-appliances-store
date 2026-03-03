@@ -17,8 +17,8 @@ export default {
     extend: {
       fontFamily: {
         display: ["Cabinet Grotesk", "system-ui", "sans-serif"],
-        body: ["General Sans", "system-ui", "sans-serif"],
-        sans: ["General Sans", "system-ui", "sans-serif"],
+        body: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
+        sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -82,10 +82,11 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        card: "0 2px 8px -2px oklch(0.22 0.06 255 / 0.08), 0 1px 3px -1px oklch(0.22 0.06 255 / 0.06)",
-        "card-hover": "0 12px 32px -8px oklch(0.22 0.06 255 / 0.15), 0 4px 12px -4px oklch(0.22 0.06 255 / 0.1)",
-        nav: "0 1px 0 0 oklch(0.88 0.01 250)",
+        xs: "0 1px 2px 0 oklch(0.13 0.025 265 / 0.05)",
+        card: "0 1px 3px 0 oklch(0.13 0.025 265 / 0.07), 0 1px 2px -1px oklch(0.13 0.025 265 / 0.05)",
+        "card-hover": "0 10px 28px -4px oklch(0.40 0.18 278 / 0.12), 0 4px 10px -3px oklch(0.13 0.025 265 / 0.07)",
+        nav: "0 1px 0 0 oklch(0.91 0.008 265), 0 2px 8px -4px oklch(0.13 0.025 265 / 0.06)",
+        modal: "0 24px 64px -12px oklch(0.13 0.025 265 / 0.22), 0 8px 24px -4px oklch(0.40 0.18 278 / 0.10)",
       },
       keyframes: {
         "accordion-down": {

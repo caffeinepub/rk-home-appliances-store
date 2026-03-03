@@ -11,6 +11,25 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export interface CartItem { 'productId' : bigint, 'quantity' : bigint }
+export interface Order {
+  'id' : bigint,
+  'customerName' : string,
+  'status' : string,
+  'deliveryAddress' : string,
+  'paymentMethod' : string,
+  'upiReference' : string,
+  'createdAt' : bigint,
+  'totalAmount' : number,
+  'buyer' : Principal,
+  'phone' : string,
+  'items' : Array<OrderItem>,
+}
+export interface OrderItem {
+  'productId' : bigint,
+  'productName' : string,
+  'quantity' : bigint,
+  'unitPrice' : number,
+}
 export interface Product {
   'id' : bigint,
   'inStock' : boolean,
@@ -30,17 +49,25 @@ export interface _SERVICE {
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'clearCart' : ActorMethod<[], undefined>,
   'deleteProduct' : ActorMethod<[bigint], undefined>,
+  'getAllOrders' : ActorMethod<[], Array<Order>>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCart' : ActorMethod<[], Array<CartItem>>,
   'getIsAdmin' : ActorMethod<[], boolean>,
+  'getMyOrders' : ActorMethod<[], Array<Order>>,
   'getProductsByCategory' : ActorMethod<[string], Array<Product>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'placeOrder' : ActorMethod<
+    [string, string, string, string, string, Array<OrderItem>],
+    bigint
+  >,
   'removeItemFromCart' : ActorMethod<[bigint], undefined>,
+  'resetSeedFlag' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'seedProducts' : ActorMethod<[], undefined>,
+  'updateOrderStatus' : ActorMethod<[bigint, string], undefined>,
   'updateProduct' : ActorMethod<
     [bigint, string, number, string, string],
     undefined

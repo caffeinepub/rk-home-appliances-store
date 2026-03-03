@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CartItem, Product } from "../backend.d";
+import type { CartItem, Order, OrderItem, Product } from "../backend.d";
 import { useActor } from "./useActor";
 
 export function useAllProducts() {
@@ -8,9 +8,15 @@ export function useAllProducts() {
     queryKey: ["products"],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllProducts();
+      try {
+        return await actor.getAllProducts();
+      } catch {
+        return [];
+      }
     },
-    enabled: !!actor && !isFetching,
+    enabled: !isFetching && actor !== null,
+    retry: 3,
+    retryDelay: 1000,
   });
 }
 
@@ -61,6 +67,23 @@ export function useSeedProducts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
+
+export function useResetAndReSeed() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("No actor");
+      await actor.resetSeedFlag();
+      await actor.seedProducts();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      // Clear local seed flag so store page doesn't re-seed on next load
+      localStorage.removeItem("rk_seeded_v3");
     },
   });
 }
@@ -173,6 +196,85 @@ export function useClearCart() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+}
+
+export function usePlaceOrder() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      customerName,
+      phone,
+      deliveryAddress,
+      paymentMethod,
+      upiReference,
+      items,
+    }: {
+      customerName: string;
+      phone: string;
+      deliveryAddress: string;
+      paymentMethod: string;
+      upiReference: string;
+      items: OrderItem[];
+    }) => {
+      if (!actor) throw new Error("No actor");
+      return actor.placeOrder(
+        customerName,
+        phone,
+        deliveryAddress,
+        paymentMethod,
+        upiReference,
+        items,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myOrders"] });
+      queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+}
+
+export function useMyOrders() {
+  const { actor, isFetching } = useActor();
+  return useQuery<Order[]>({
+    queryKey: ["myOrders"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getMyOrders();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useAllOrders() {
+  const { actor, isFetching } = useActor();
+  return useQuery<Order[]>({
+    queryKey: ["allOrders"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllOrders();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useUpdateOrderStatus() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      orderId,
+      status,
+    }: { orderId: bigint; status: string }) => {
+      if (!actor) throw new Error("No actor");
+      await actor.updateOrderStatus(orderId, status);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+      queryClient.invalidateQueries({ queryKey: ["myOrders"] });
     },
   });
 }

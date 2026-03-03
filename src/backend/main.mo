@@ -8,11 +8,11 @@ import List "mo:core/List";
 import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
-import Migration "migration";
+import Time "mo:core/Time";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-(with migration = Migration.run)
 actor {
   type Product = {
     id : Nat;
@@ -31,6 +31,27 @@ actor {
     name : Text;
   };
 
+  type OrderItem = {
+    productId : Nat;
+    productName : Text;
+    quantity : Nat;
+    unitPrice : Float;
+  };
+
+  type Order = {
+    id : Nat;
+    buyer : Principal;
+    customerName : Text;
+    phone : Text;
+    deliveryAddress : Text;
+    paymentMethod : Text;
+    upiReference : Text;
+    items : [OrderItem];
+    totalAmount : Float;
+    status : Text;
+    createdAt : Int;
+  };
+
   module Product {
     public func compare(p1 : Product, p2 : Product) : Order.Order {
       Nat.compare(p1.id, p2.id);
@@ -46,6 +67,10 @@ actor {
 
   // User profiles store
   let userProfiles = Map.empty<Principal, UserProfile>();
+
+  // Orders store
+  let orders = Map.empty<Nat, Order>();
+  var orderIdCounter = 0;
 
   // Authorization
   let accessControlState = AccessControl.initState();
@@ -139,7 +164,7 @@ actor {
       },
       // Fans
       {
-        name = "Orient Storm 1200mm";
+        name = "Orient 1200mm Ceiling Fan";
         price = 49.99;
         description = "High speed ceiling fan with copper motor.";
         category = "Fans";
@@ -157,7 +182,7 @@ actor {
         category = "Fans";
       },
       {
-        name = "Havells Standard Fan";
+        name = "Havells Standard Ceiling Fan";
         price = 44.99;
         description = "Quiet and efficient ceiling fan.";
         category = "Fans";
@@ -211,6 +236,43 @@ actor {
         description = "Handy blender for smoothies and soups.";
         category = "Kitchen Appliances";
       },
+      // LED TVs
+      {
+        name = "Samsung 32\" HD LED Smart TV";
+        price = 249.99;
+        description = "Crystal clear HD display with smart features.";
+        category = "LED TVs";
+      },
+      {
+        name = "LG 43\" Full HD Smart TV";
+        price = 349.99;
+        description = "Immersive full HD experience with webOS.";
+        category = "LED TVs";
+      },
+      {
+        name = "Sony 55\" 4K Ultra HD Smart TV";
+        price = 599.99;
+        description = "Vivid 4K display with Android TV platform.";
+        category = "LED TVs";
+      },
+      {
+        name = "Mi 43\" Full HD Android TV";
+        price = 299.99;
+        description = "Feature-rich Android TV with voice controls.";
+        category = "LED TVs";
+      },
+      {
+        name = "OnePlus 65\" 4K QLED TV";
+        price = 799.99;
+        description = "Quantum LED display with Dolby Vision support.";
+        category = "LED TVs";
+      },
+      {
+        name = "Panasonic 75\" 4K LED TV";
+        price = 1099.99;
+        description = "Large 4K display with smart connectivity.";
+        category = "LED TVs";
+      },
     ];
 
     for (product in initialProducts.values()) {
@@ -220,6 +282,7 @@ actor {
     productsSeeded := true;
   };
 
+  // Helper function to add product
   func addProductHelper(name : Text, price : Float, description : Text, category : Text) {
     let product : Product = {
       id = productIdCounter;
@@ -231,6 +294,14 @@ actor {
     };
     products.add(productIdCounter, product);
     productIdCounter += 1;
+  };
+
+  // Reset productsSeeded flag (admin only)
+  public shared ({ caller }) func resetSeedFlag() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can reset seed flag");
+    };
+    productsSeeded := false;
   };
 
   // Add product (admin only)
@@ -319,6 +390,73 @@ actor {
       Runtime.trap("Unauthorized: Only users can clear cart");
     };
     carts.remove(caller);
+  };
+
+  // Order Functions
+  public shared ({ caller }) func placeOrder(
+    customerName : Text,
+    phone : Text,
+    deliveryAddress : Text,
+    paymentMethod : Text,
+    upiReference : Text,
+    items : [OrderItem]
+  ) : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can place orders");
+    };
+
+    let totalAmount = items.foldLeft(
+      0.0,
+      func(acc, item) {
+        acc + (item.unitPrice * item.quantity.toFloat());
+      },
+    );
+
+    let order : Order = {
+      id = orderIdCounter;
+      buyer = caller;
+      customerName;
+      phone;
+      deliveryAddress;
+      paymentMethod;
+      upiReference;
+      items;
+      totalAmount;
+      status = "pending";
+      createdAt = Time.now();
+    };
+
+    orders.add(orderIdCounter, order);
+    orderIdCounter += 1;
+    order.id;
+  };
+
+  public query ({ caller }) func getMyOrders() : async [Order] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view orders");
+    };
+    orders.values().filter(func(order) { order.buyer == caller }).toArray();
+  };
+
+  public query ({ caller }) func getAllOrders() : async [Order] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view all orders");
+    };
+    orders.values().toArray();
+  };
+
+  public shared ({ caller }) func updateOrderStatus(orderId : Nat, status : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update order status");
+    };
+
+    let order = switch (orders.get(orderId)) {
+      case (null) { Runtime.trap("Order not found") };
+      case (?order) { order };
+    };
+
+    let updatedOrder : Order = { order with status };
+    orders.add(orderId, updatedOrder);
   };
 
   // Admin check (public)
