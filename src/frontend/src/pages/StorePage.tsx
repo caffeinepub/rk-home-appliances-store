@@ -1,7 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Settings, ShoppingCart, Zap } from "lucide-react";
+import {
+  LogIn,
+  LogOut,
+  Package,
+  Settings,
+  ShoppingCart,
+  Zap,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 import type { Product } from "../backend.d";
@@ -35,7 +42,7 @@ export default function StorePage({
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { identity } = useInternetIdentity();
+  const { identity, login, clear, isLoggingIn } = useInternetIdentity();
   const isAuthenticated = !!identity;
   const { data: backendProducts, isLoading: productsLoading } =
     useAllProducts();
@@ -150,6 +157,32 @@ export default function StorePage({
                   <Settings className="w-4 h-4" />
                 </Button>
               )}
+              {/* Login / Logout */}
+              {!isAuthenticated ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={login}
+                  disabled={isLoggingIn}
+                  data-ocid="nav.login.button"
+                  className="gap-2 text-sm font-body font-medium"
+                >
+                  <LogIn className="w-4 h-4" />
+                  {isLoggingIn ? "Logging in..." : "Login"}
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clear}
+                  data-ocid="nav.logout.button"
+                  className="gap-2 text-muted-foreground hover:text-foreground hidden sm:flex"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
+              )}
+
               <button
                 type="button"
                 onClick={onOpenCart}

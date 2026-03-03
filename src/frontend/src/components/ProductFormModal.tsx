@@ -22,6 +22,7 @@ const CATEGORIES = [
   "Air Conditioners",
   "Fans",
   "Kitchen Appliances",
+  "LED TVs",
 ];
 
 type FormMode = { type: "add" } | { type: "edit"; product: Product };
