@@ -51,11 +51,11 @@ export default function StorePage({
   // Seed products once on first load
   useEffect(() => {
     if (!actor || actorFetching) return;
-    const seeded = localStorage.getItem("rk_seeded");
+    const seeded = localStorage.getItem("rk_seeded_v2");
     if (!seeded) {
       seedMutate(undefined, {
         onSuccess: () => {
-          localStorage.setItem("rk_seeded", "true");
+          localStorage.setItem("rk_seeded_v2", "true");
         },
       });
     }

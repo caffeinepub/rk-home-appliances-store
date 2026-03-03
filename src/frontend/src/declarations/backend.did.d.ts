@@ -19,6 +19,7 @@ export interface Product {
   'category' : string,
   'price' : number,
 }
+export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
@@ -30,12 +31,15 @@ export interface _SERVICE {
   'clearCart' : ActorMethod<[], undefined>,
   'deleteProduct' : ActorMethod<[bigint], undefined>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCart' : ActorMethod<[], Array<CartItem>>,
   'getIsAdmin' : ActorMethod<[], boolean>,
   'getProductsByCategory' : ActorMethod<[string], Array<Product>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'removeItemFromCart' : ActorMethod<[bigint], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'seedProducts' : ActorMethod<[], undefined>,
   'updateProduct' : ActorMethod<
     [bigint, string, number, string, string],

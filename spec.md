@@ -1,36 +1,32 @@
 # RK Home Appliances Store
 
 ## Current State
-Empty workspace -- no prior app code exists.
+- Backend has 16 seeded products across 4 categories: refrigerator, ac, fan, kitchen appliance
+- Frontend has category filters: All, Refrigerators, Air Conditioners, Fans, Kitchen Appliances
+- **Bug**: Backend category value is `"kitchen appliance"` but frontend filter compares against `"Kitchen Appliances"` -- kitchen appliances never show when filtered
+- The 4 existing kitchen products are: Philips Mixer Grinder, Preethi Rice Cooker, Bajaj Toaster, Morphy Richards Microwave
+- Backend uses a `productsSeeded` flag and `localStorage("rk_seeded")` to prevent re-seeding
 
 ## Requested Changes (Diff)
 
 ### Add
-- Full e-commerce storefront for home appliances
-- Product catalog with 4 categories: Refrigerators, Air Conditioners, Fans, Kitchen Appliances
-- 4-5 products per category (roughly 18 products total), each with: name, price, description, category, stock status
-- Category filter tabs on the storefront
-- Shopping cart (add/remove items, view total)
-- Product detail modal/view
-- Admin panel (protected by a simple admin flag) to: add, edit, delete products
+- 4 new kitchen appliance products: Air Fryer, Coffee Maker, Electric Kettle, Blender
+- Total kitchen appliances will be 8 products
 
 ### Modify
-- N/A (new project)
+- Fix all existing kitchen appliance category values from `"kitchen appliance"` to `"Kitchen Appliances"` in backend seed data
+- Fix all other category values to match frontend filter labels exactly:
+  - `"refrigerator"` → `"Refrigerators"`
+  - `"ac"` → `"Air Conditioners"`
+  - `"fan"` → `"Fans"`
+  - `"kitchen appliance"` → `"Kitchen Appliances"`
+- Update frontend seed key from `"rk_seeded"` to `"rk_seeded_v2"` so re-seeding triggers on next load
 
 ### Remove
-- N/A
+- Nothing removed
 
 ## Implementation Plan
-1. Backend (Motoko):
-   - Product data type: id, name, price, description, category, inStock
-   - CRUD operations: getProducts, addProduct, updateProduct, deleteProduct
-   - Cart operations: addToCart, removeFromCart, getCart, clearCart
-   - Seed with initial 18 products across 4 categories
-   - Admin check via caller identity
-
-2. Frontend:
-   - Storefront page: header with cart icon, category filter tabs, product grid
-   - Product card with name, price, description, add-to-cart button
-   - Cart sidebar/modal
-   - Admin panel page: product list table with edit/delete, add product form
-   - Navigation between storefront and admin panel
+1. Update `main.mo` seed data: fix all category strings to match frontend labels exactly, add 4 new kitchen appliance products
+2. Update `StorePage.tsx`: change localStorage key to `"rk_seeded_v2"` so new products get seeded
+3. Regenerate backend (Motoko compile)
+4. Deploy

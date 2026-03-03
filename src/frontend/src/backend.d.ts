@@ -11,6 +11,9 @@ export interface CartItem {
     productId: bigint;
     quantity: bigint;
 }
+export interface UserProfile {
+    name: string;
+}
 export interface Product {
     id: bigint;
     inStock: boolean;
@@ -31,12 +34,15 @@ export interface backendInterface {
     clearCart(): Promise<void>;
     deleteProduct(id: bigint): Promise<void>;
     getAllProducts(): Promise<Array<Product>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCart(): Promise<Array<CartItem>>;
     getIsAdmin(): Promise<boolean>;
     getProductsByCategory(category: string): Promise<Array<Product>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     removeItemFromCart(productId: bigint): Promise<void>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
     seedProducts(): Promise<void>;
     updateProduct(id: bigint, name: string, price: number, description: string, category: string): Promise<void>;
 }
